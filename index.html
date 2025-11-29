@@ -706,6 +706,7 @@
           <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Állat előnézet" />
         </a>
         <span class="pet-preview-label">Betöltés...</span>
+        <button type="button" id="shuffle-inputs" class="layer-action layer-action--shuffle">Bemenetek keverése</button>
       </div>
     </div>
     <div id="network">
@@ -774,6 +775,7 @@
       const petPreviewImg = petPreviewEl ? petPreviewEl.querySelector('img') : null;
       const petPreviewLink = document.getElementById('pet-preview-link');
       const petPreviewLabelEl = petPreviewEl ? petPreviewEl.querySelector('.pet-preview-label') : null;
+      const shuffleButtonEl = document.getElementById('shuffle-inputs');
       const statusEl = document.getElementById('network-status');
 
       const neuronsByLayer = [];
@@ -873,17 +875,6 @@
             labelEl.textContent = 'Kimeneti réteg';
           } else {
             labelEl.textContent = `Rejtett réteg ${layerIndex}`;
-          }
-          if (layerIndex === 0) {
-            const shuffleButton = document.createElement('button');
-            shuffleButton.type = 'button';
-            shuffleButton.className = 'layer-action layer-action--shuffle';
-            shuffleButton.textContent = 'Bemenetek keverése';
-            shuffleButton.addEventListener('click', (event) => {
-              event.stopPropagation();
-              randomizeInputs();
-            });
-            labelEl.appendChild(shuffleButton);
           }
           layerEl.appendChild(labelEl);
 
@@ -1711,6 +1702,13 @@
         document.addEventListener('click', () => {
           hideHiddenNeuronControls();
         });
+
+        if (shuffleButtonEl) {
+          shuffleButtonEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            randomizeInputs();
+          });
+        }
 
       }
 
