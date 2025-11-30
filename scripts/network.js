@@ -985,13 +985,48 @@
 
       connection.midX = (x1 + x2) / 2;
       connection.midY = (y1 + y2) / 2;
-      if (connection.handleEl) {
-        // Position handle directly at the midpoint of the connection line
-        connection.handleEl.style.left = `${connection.midX - 8}px`;
-        connection.handleEl.style.top = `${connection.midY - 8}px`;
-      }
+      
       if (activeConnection === connection) {
         syncActiveOverlayFromLine(x1, y1, x2, y2);
+      }
+    });
+
+    // Group overlapping handles and spread them out
+    const overlapThreshold = 20; // Distance threshold for considering handles as overlapping
+    const spreadRadius = 18; // Radius to spread overlapping handles
+    
+    connections.forEach((connection) => {
+      if (!connection.handleEl) return;
+      
+      // Find all handles that overlap with this one
+      const overlappingHandles = connections.filter((other) => {
+        if (!other.handleEl || other === connection) return false;
+        const dx = other.midX - connection.midX;
+        const dy = other.midY - connection.midY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        return distance < overlapThreshold;
+      });
+      
+      if (overlappingHandles.length > 0) {
+        // Include the current connection in the group
+        const handleGroup = [connection, ...overlappingHandles];
+        const groupSize = handleGroup.length;
+        
+        // Find the index of the current connection in the sorted group (for consistent ordering)
+        const sortedGroup = handleGroup.sort((a, b) => a.id - b.id);
+        const currentIndex = sortedGroup.indexOf(connection);
+        
+        // Arrange handles in a circle around the midpoint
+        const angle = (currentIndex / groupSize) * 2 * Math.PI;
+        const offsetX = Math.cos(angle) * spreadRadius;
+        const offsetY = Math.sin(angle) * spreadRadius;
+        
+        connection.handleEl.style.left = `${connection.midX + offsetX - 8}px`;
+        connection.handleEl.style.top = `${connection.midY + offsetY - 8}px`;
+      } else {
+        // No overlap, position directly at midpoint
+        connection.handleEl.style.left = `${connection.midX - 8}px`;
+        connection.handleEl.style.top = `${connection.midY - 8}px`;
       }
     });
 
