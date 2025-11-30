@@ -718,6 +718,7 @@
         </a>
         <span class="pet-preview-label">Betöltés...</span>
         <button type="button" id="shuffle-inputs" class="layer-action layer-action--shuffle">Bemenetek keverése</button>
+        <button type="button" id="auto-correct" class="layer-action layer-action--autocorrect">Automatikus javítás</button>
       </div>
     </div>
     <div id="network">
@@ -787,6 +788,7 @@
       const petPreviewLink = document.getElementById('pet-preview-link');
       const petPreviewLabelEl = petPreviewEl ? petPreviewEl.querySelector('.pet-preview-label') : null;
       const shuffleButtonEl = document.getElementById('shuffle-inputs');
+      const autoCorrectButtonEl = document.getElementById('auto-correct');
       const statusEl = document.getElementById('network-status');
 
       const neuronsByLayer = [];
@@ -1341,6 +1343,36 @@
         }
       }
 
+      function handleAutoCorrectRequest() {
+        if (!currentPetType) {
+          setStatus('Nincs referencia a helyes címkére.');
+          return;
+        }
+        if (!neuronsByLayer.length) {
+          return;
+        }
+        const targetValue = currentPetType === 'cat' ? 1 : 0;
+        const outputLayer = neuronsByLayer[neuronsByLayer.length - 1];
+        if (!outputLayer.length) {
+          setStatus('Hiányzik a kimeneti neuron.');
+          return;
+        }
+        recomputeNetwork();
+        const outputNeuron = outputLayer[0];
+        const predictedCat = outputNeuron.value >= 0.5;
+        const actualCat = currentPetType === 'cat';
+        if (predictedCat === actualCat) {
+          setStatus('A háló már helyes eredményt ad.');
+          return;
+        }
+        const success = adjustNetworkToTargetOutput(targetValue, { limitToHiddenLayers: true });
+        if (success) {
+          setStatus('Rejtett neuronos súlyok automatikusan igazítva.');
+        } else {
+          setStatus('Nem sikerült csak a rejtett súlyokat módosítani.');
+        }
+      }
+
       function computeNeuronGradients() {
         const gradients = neuronsByLayer.map((layer) => layer.map(() => 0));
         const lastLayerIndex = neuronsByLayer.length - 1;
@@ -1367,10 +1399,11 @@
         return gradients;
       }
 
-      function adjustNetworkToTargetOutput(targetValue) {
+      function adjustNetworkToTargetOutput(targetValue, options = {}) {
         if (!Number.isFinite(targetValue)) {
           return false;
         }
+        const { limitToHiddenLayers = false } = options;
         const tolerance = 0.01;
         const maxIterations = 200;
         const learningRate = 0.03;
@@ -1394,6 +1427,9 @@
           let anyUpdate = false;
 
           connections.forEach((connection) => {
+            if (limitToHiddenLayers && connection.to.layerIndex === neuronsByLayer.length - 1) {
+              return;
+            }
             const gradient = connection.from.value * neuronGradients[connection.to.layerIndex][connection.to.index];
             if (!Number.isFinite(gradient) || gradient === 0) {
               return;
@@ -1402,7 +1438,7 @@
             if (weightDelta === 0) {
               return;
             }
-      connection.weight -= weightDelta;
+            connection.weight -= weightDelta;
             anyUpdate = true;
           });
 
@@ -1718,6 +1754,13 @@
           shuffleButtonEl.addEventListener('click', (event) => {
             event.stopPropagation();
             randomizeInputs();
+          });
+        }
+
+        if (autoCorrectButtonEl) {
+          autoCorrectButtonEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            handleAutoCorrectRequest();
           });
         }
 
