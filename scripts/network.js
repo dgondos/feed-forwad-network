@@ -986,23 +986,9 @@
       connection.midX = (x1 + x2) / 2;
       connection.midY = (y1 + y2) / 2;
       if (connection.handleEl) {
-        const dx = x2 - x1;
-        const dy = y2 - y1;
-        const dist = Math.hypot(dx, dy) || 1;
-        const tangentX = dx / dist;
-        const tangentY = dy / dist;
-        const normalX = -dy / dist;
-        const normalY = dx / dist;
-        const fromLayer = neuronsByLayer[connection.from.layerIndex] || [];
-        const toLayer = neuronsByLayer[connection.to.layerIndex] || [];
-        const fromCenteredIndex = connection.from.index - (fromLayer.length - 1) / 2;
-        const toCenteredIndex = connection.to.index - (toLayer.length - 1) / 2;
-        const tangentialOffset = (fromCenteredIndex + toCenteredIndex) * 12;
-        const normalOffset = (fromCenteredIndex - toCenteredIndex) * 10;
-        const handleX = connection.midX + tangentX * tangentialOffset + normalX * normalOffset;
-        const handleY = connection.midY + tangentY * tangentialOffset + normalY * normalOffset;
-        connection.handleEl.style.left = `${handleX - 8}px`;
-        connection.handleEl.style.top = `${handleY - 8}px`;
+        // Position handle directly at the midpoint of the connection line
+        connection.handleEl.style.left = `${connection.midX - 8}px`;
+        connection.handleEl.style.top = `${connection.midY - 8}px`;
       }
       if (activeConnection === connection) {
         syncActiveOverlayFromLine(x1, y1, x2, y2);
