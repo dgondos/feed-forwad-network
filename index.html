@@ -736,10 +736,16 @@
     }
 
     /* Button animation state */
-    .layer-action--animating {
-      background: #64748b;
+    .layer-action--animating,
+    .layer-action--disabled {
+      background: #94a3b8;
       cursor: not-allowed;
       pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .layer-action--animating {
+      opacity: 1;
     }
 
     .layer-action--animating::after {
@@ -1333,6 +1339,22 @@
         }
         outputNeuron.predictionEl.classList.toggle('neuron-prediction-label--cat', predictedCat);
         outputNeuron.predictionEl.classList.toggle('neuron-prediction-label--dog', !predictedCat);
+
+        // Update auto-correct button state
+        updateAutoCorrectButtonState(isCorrect);
+      }
+
+      function updateAutoCorrectButtonState(isCorrect) {
+        if (!autoCorrectButtonEl || isAutoCorrectAnimating) {
+          return;
+        }
+        if (isCorrect) {
+          autoCorrectButtonEl.classList.add('layer-action--disabled');
+          autoCorrectButtonEl.textContent = 'Már helyes!';
+        } else {
+          autoCorrectButtonEl.classList.remove('layer-action--disabled');
+          autoCorrectButtonEl.textContent = 'Automatikus javítás';
+        }
       }
 
       function pulseNeuron(neuron) {
@@ -1482,6 +1504,30 @@
         neuron.element.classList.add('neuron--auto-correct-highlight');
       }
 
+      function canNeuronHelpCorrect(neuron, targetValue, tolerance) {
+        // Check if adjusting this neuron's incoming weights can help reach the target
+        const outputLayer = neuronsByLayer[neuronsByLayer.length - 1];
+        const outputNeuron = outputLayer[0];
+        const currentOutput = outputNeuron.value;
+        const error = currentOutput - targetValue;
+
+        if (Math.abs(error) <= tolerance) {
+          return false; // Already at target
+        }
+
+        // Calculate gradients to see if this neuron has any influence
+        const neuronGradients = computeNeuronGradients();
+        
+        for (const connection of neuron.incoming) {
+          const gradient = connection.from.value * neuronGradients[neuron.layerIndex][neuron.index];
+          if (Number.isFinite(gradient) && Math.abs(gradient) > 0.001) {
+            // This neuron can contribute to correction
+            return true;
+          }
+        }
+        return false;
+      }
+
       async function handleAnimatedAutoCorrect() {
         if (isAutoCorrectAnimating) {
           return;
@@ -1491,6 +1537,7 @@
         // Disable button during animation
         if (autoCorrectButtonEl) {
           autoCorrectButtonEl.classList.add('layer-action--animating');
+          autoCorrectButtonEl.classList.remove('layer-action--disabled');
           autoCorrectButtonEl.textContent = 'Javítás...';
         }
 
@@ -1528,6 +1575,7 @@
         await sleep(200);
 
         let overallSuccess = false;
+        let visitedAnyNeuron = false;
 
         // Process each hidden neuron one by one
         for (const neuron of hiddenNeurons) {
@@ -1541,6 +1589,13 @@
             overallSuccess = true;
             break;
           }
+
+          // Skip neurons that can't help with correction
+          if (!canNeuronHelpCorrect(neuron, targetValue, tolerance)) {
+            continue;
+          }
+
+          visitedAnyNeuron = true;
 
           // Get neuron position relative to network
           const neuronRect = neuron.element.getBoundingClientRect();
@@ -1643,13 +1698,17 @@
         // Re-enable button
         if (autoCorrectButtonEl) {
           autoCorrectButtonEl.classList.remove('layer-action--animating');
-          autoCorrectButtonEl.textContent = 'Automatikus javítás';
         }
 
         isAutoCorrectAnimating = false;
 
+        // Update button state based on result
+        updateAutoCorrectButtonState(overallSuccess);
+
         if (overallSuccess) {
           setStatus('Rejtett neuronok súlyai sikeresen beállítva!');
+        } else if (!visitedAnyNeuron) {
+          setStatus('Nincs beállítható neuron.');
         } else {
           setStatus('A javítás részlegesen sikerült.');
         }
