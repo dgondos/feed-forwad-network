@@ -1,0 +1,775 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f5f6fa;
+  color: #1f2933;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.network-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 1.5rem 2rem 2.5rem;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.network-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 320px;
+  width: min(320px, 100%);
+}
+
+.network-header {
+  padding: 0;
+}
+
+.network-header h1 {
+  margin: 0 0 0.6rem;
+  font-size: 1.9rem;
+}
+
+.network-header p {
+  margin: 0;
+  color: #52606d;
+}
+
+#network {
+  position: relative;
+  width: clamp(760px, 90vw, 1100px);
+  height: clamp(540px, 75vh, 760px);
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+  padding: 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pet-preview {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 1rem;
+  padding: 0.65rem;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.pet-preview a {
+  display: block;
+  border-radius: 0.85rem;
+  overflow: hidden;
+}
+
+.pet-preview img {
+  width: 100%;
+  height: 208px;
+  object-fit: contain;
+  border-radius: 0.85rem;
+  display: block;
+  box-shadow: inset 0 1px 6px rgba(15, 23, 42, 0.15);
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.pet-preview-label {
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.input-arrow {
+  position: absolute;
+  top: 50%;
+  left: 50px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  font-size: 3.5rem;
+  color: rgba(37, 99, 235, 0.8);
+  text-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.network-status {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translate(-50%, 10px);
+  font-size: 1.56rem;
+  color: #1f2937;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+}
+
+.network-status--visible {
+  display: inline-flex;
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@keyframes statusFlash {
+  0% {
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 0 0 rgba(59, 130, 246, 0);
+  }
+  50% {
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 0 18px rgba(59, 130, 246, 0.35);
+  }
+  100% {
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12), 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.network-status--flash {
+  animation: statusFlash 0.8s ease;
+}
+
+@keyframes statusDissolve {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.network-status--dissolve {
+  animation: statusDissolve 1s forwards;
+}
+
+.layers {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.layer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.6rem;
+  position: relative;
+  pointer-events: none;
+}
+
+.layer-label {
+  position: absolute;
+  top: 0.4rem;
+  font-size: 0.82rem;
+  color: #829ab1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.layer-action {
+  pointer-events: auto;
+  border: none;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.layer-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.45);
+}
+
+.layer-action:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.neuron-controls {
+  display: none;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  pointer-events: auto;
+}
+
+.neuron-controls--visible,
+.neuron-controls--persistent {
+  display: flex;
+}
+
+.neuron-controls button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #d2d6dc;
+  background: #e4ecf7;
+  color: #1d3557;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.neuron-controls button:hover {
+  background: #cbd5f5;
+  transform: translateY(-1px);
+}
+
+.neuron-controls button:active {
+  transform: translateY(0);
+}
+
+.neuron-controls button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.neuron-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: auto;
+  position: relative;
+}
+
+.neuron-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #52606d;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.neuron-block:hover .neuron-label,
+.neuron-block:focus-within .neuron-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.neuron {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 3px solid #d9e2ec;
+  background: linear-gradient(145deg, #f8fafc, #e4ecf4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 4px 10px rgba(148, 163, 184, 0.3);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #102a43;
+  pointer-events: none;
+  position: relative;
+  z-index: 3;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  will-change: transform;
+}
+
+.neuron--type-input {
+  background: linear-gradient(145deg, #ffe8cc, #ffd6a1);
+  border-color: #f5c48d;
+}
+
+.neuron--type-hidden {
+  background: linear-gradient(145deg, #e0edff, #c7dcff);
+  border-color: #a1c0fb;
+}
+
+.neuron--type-output {
+  background: linear-gradient(145deg, #ffd7d7, #ffb4b4);
+  border-color: #f09a9a;
+}
+
+.neuron-prediction-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1f2937;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.55rem;
+  margin-top: 0.35rem;
+  background: rgba(15, 23, 42, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.neuron-prediction-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-left: 0.6rem;
+  position: absolute;
+  top: 45%;
+  right: 20px;
+  transform: translate(0, -50%);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  pointer-events: none;
+}
+
+.neuron-prediction-icon--success {
+  background: rgba(34, 197, 94, 0.25);
+  color: #14532d;
+}
+
+.neuron-prediction-icon--error {
+  background: rgba(239, 68, 68, 0.25);
+  color: #7f1d1d;
+}
+
+.neuron--clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+@keyframes neuronPulseOrange {
+  0% {
+    background: linear-gradient(145deg, #ffe8cc, #ffd6a1);
+    border-color: #f5c48d;
+  }
+  40% {
+    background: linear-gradient(145deg, #ffcf99, #ffb866);
+    border-color: #fb923c;
+    box-shadow: inset 0 6px 16px rgba(248, 191, 97, 0.7), 0 10px 26px rgba(253, 186, 116, 0.35);
+  }
+  100% {
+    background: linear-gradient(145deg, #ffe8cc, #ffd6a1);
+    border-color: #f5c48d;
+  }
+}
+
+@keyframes neuronPulseBlue {
+  0% {
+    background: linear-gradient(145deg, #e0edff, #c7dcff);
+    border-color: #a1c0fb;
+  }
+  40% {
+    background: linear-gradient(145deg, #c0d8ff, #97beff);
+    border-color: #2563eb;
+    box-shadow: inset 0 6px 16px rgba(59, 130, 246, 0.45), 0 10px 26px rgba(96, 165, 250, 0.35);
+  }
+  100% {
+    background: linear-gradient(145deg, #e0edff, #c7dcff);
+    border-color: #a1c0fb;
+  }
+}
+
+@keyframes neuronPulseRed {
+  0% {
+    background: linear-gradient(145deg, #ffd7d7, #ffb4b4);
+    border-color: #f09a9a;
+  }
+  40% {
+    background: linear-gradient(145deg, #ffb7b7, #ff8d8d);
+    border-color: #ef4444;
+    box-shadow: inset 0 6px 16px rgba(248, 113, 113, 0.55), 0 10px 26px rgba(248, 113, 113, 0.4);
+  }
+  100% {
+    background: linear-gradient(145deg, #ffd7d7, #ffb4b4);
+    border-color: #f09a9a;
+  }
+}
+
+.neuron--pulse-orange {
+  animation: neuronPulseOrange 0.2s ease forwards;
+}
+
+.neuron--pulse-blue {
+  animation: neuronPulseBlue 0.2s ease forwards;
+}
+
+.neuron--pulse-red {
+  animation: neuronPulseRed 0.2s ease forwards;
+}
+
+.neuron--clickable:hover {
+  transform: scale(1.08);
+  box-shadow: inset 0 6px 14px rgba(148, 163, 184, 0.38), 0 14px 26px rgba(15, 23, 42, 0.22);
+}
+
+svg#connections {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  overflow: visible;
+  z-index: 1;
+}
+
+svg#connections line {
+  stroke-width: 4.8;
+  stroke-linecap: round;
+  opacity: 0.9;
+  pointer-events: visibleStroke;
+  cursor: pointer;
+  transition: stroke-width 0.18s ease;
+}
+
+svg#connections line.connection-overlay-line {
+  stroke: rgba(59, 130, 246, 0.95);
+  stroke-width: 2.2;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+.connection-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(37, 99, 235, 0.6);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e3a8a;
+  font-size: 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 3;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+
+#weight-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  z-index: 4;
+  min-width: 160px;
+  backdrop-filter: blur(2px);
+}
+
+#neuron-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.9rem 1.05rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  z-index: 4;
+  min-width: 240px;
+  max-width: 320px;
+  backdrop-filter: blur(8px);
+}
+
+.neuron-expression {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: #243b53;
+}
+
+.neuron-expression-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.neuron-expression-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 0.5rem;
+  background: rgba(226, 232, 240, 0.45);
+  border-left: 3px solid transparent;
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.neuron-expression-line span {
+  font-family: "SFMono-Regular", "Fira Code", "Roboto Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: #0b2541;
+}
+
+.neuron-expression-line:hover,
+.neuron-expression-line--active {
+  background: rgba(251, 146, 60, 0.24);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  transform: translateX(4px);
+  border-left: 3px solid #fb923c;
+}
+
+.neuron-expression-summary {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.45);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #102a43;
+}
+
+.neuron-expression-summary strong {
+  font-weight: 700;
+}
+
+.neuron-expression-note {
+  font-size: 0.8rem;
+  color: #52606d;
+}
+
+#weight-panel button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #486581;
+  cursor: move;
+}
+
+.panel-close {
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 0.4rem;
+  background: #e4ecf4;
+  color: #102a43;
+  font-weight: 700;
+  transition: background 0.24s ease;
+}
+
+.panel-close:hover {
+  background: #cbd2d9;
+}
+
+.panel-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.neuron-panel-body {
+  justify-content: flex-start;
+}
+
+.panel-value {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.panel-value-label {
+  font-size: 0.72rem;
+  color: #829ab1;
+}
+
+.weight-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #102a43;
+}
+
+.panel-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.35rem;
+}
+
+#weight-panel .panel-controls button {
+  border: 1px solid #0b2541;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #1a3359, #244679);
+  color: #fdfdff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.5rem 0.4rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease;
+}
+
+#weight-panel .panel-controls button:hover {
+  background: linear-gradient(135deg, #20365a, #1a2e4b);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.28);
+  color: #ffffff;
+}
+
+#weight-panel .panel-controls button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.28);
+}
+
+#weight-panel .panel-controls button:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.7);
+  outline-offset: 2px;
+}
+
+footer {
+  padding: 0.8rem 2rem 1.6rem;
+  color: #829ab1;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  #network {
+    padding: 2rem 1.6rem;
+  }
+
+  .neuron {
+    width: 80px;
+    height: 80px;
+  }
+
+  #weight-panel {
+    min-width: 140px;
+  }
+}
+
+/* Fake cursor for auto-correct animation */
+.fake-cursor {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.fake-cursor--visible {
+  opacity: 1;
+}
+
+.fake-cursor svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes cursorClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+
+.fake-cursor--clicking {
+  animation: cursorClick 0.2s ease;
+}
+
+/* Button animation state */
+.layer-action--animating,
+.layer-action--disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.layer-action--animating {
+  opacity: 1;
+}
+
+.layer-action--animating::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: buttonSpin 0.8s linear infinite;
+}
+
+@keyframes buttonSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Neuron highlight during auto-correct */
+@keyframes neuronAutoCorrectHighlight {
+  0% {
+    box-shadow: inset 0 4px 10px rgba(148, 163, 184, 0.3), 0 0 0 rgba(34, 197, 94, 0);
+  }
+  50% {
+    box-shadow: inset 0 4px 10px rgba(148, 163, 184, 0.3), 0 0 20px rgba(34, 197, 94, 0.6);
+  }
+  100% {
+    box-shadow: inset 0 4px 10px rgba(148, 163, 184, 0.3), 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.neuron--auto-correct-highlight {
+  animation: neuronAutoCorrectHighlight 0.6s ease;
+}
+  
