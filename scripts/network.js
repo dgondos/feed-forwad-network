@@ -1037,12 +1037,12 @@
         const handleX = connection.midX + unitX * offset;
         const handleY = connection.midY + unitY * offset;
         
-        connection.handleEl.style.left = `${handleX - 8}px`;
-        connection.handleEl.style.top = `${handleY - 8}px`;
+        connection.handleEl.style.left = `${handleX - 7}px`;
+        connection.handleEl.style.top = `${handleY - 7}px`;
       } else {
         // No overlap, position directly at midpoint
-        connection.handleEl.style.left = `${connection.midX - 8}px`;
-        connection.handleEl.style.top = `${connection.midY - 8}px`;
+        connection.handleEl.style.left = `${connection.midX - 7}px`;
+        connection.handleEl.style.top = `${connection.midY - 7}px`;
       }
     });
 
